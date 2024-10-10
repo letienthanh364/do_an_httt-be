@@ -2,7 +2,7 @@ import { DataSource } from 'typeorm';
 import 'dotenv/config';
 
 export const dataSource = new DataSource({
-  type: 'mysql',
+  type: "mssql",
   host: process.env.DB_HOST,
   port: parseInt(process.env.DB_PORT, 10) ?? 3306,
   username: process.env.DB_USER,
@@ -10,10 +10,13 @@ export const dataSource = new DataSource({
   database: process.env.DB_NAME,
   entities: [__dirname + '/src/**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/dist/database/migrations/*{.ts,.js}'],
-  synchronize: false,
+  synchronize: true,
   logging: true,
-  ssl: {
-    rejectUnauthorized: false,
+  extra: {
+    trustServerCertificate: true,
   },
+  // ssl: {
+  //   rejectUnauthorized: false,
+  // },
   migrationsRun: true,
 });
