@@ -13,7 +13,8 @@ export class UserController {
   async register(@Body() user: UserCreateDto) {
     const newUser = await this.userService.create(user);
 
-    const { password, deleted_at, ...res } = newUser;
+    // const { password, deleted_at, ...res } = newUser;
+    const res = newUser;
     return res;
   }
 
