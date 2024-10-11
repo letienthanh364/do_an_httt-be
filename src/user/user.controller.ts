@@ -25,7 +25,8 @@ export class UserController {
   async register(@Body() user: UserCreateDto) {
     const newUser = await this.userService.create(user);
 
-    const { password, deleted_at, ...res } = newUser;
+    // const { password, deleted_at, ...res } = newUser;
+    const res = newUser;
     return res;
   }
 
@@ -36,7 +37,9 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async getUserById(@Param('id') id: string): Promise<User> {
+  async getUserById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<User> {
     return this.userService.findOne(id);
   }
 

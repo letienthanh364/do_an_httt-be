@@ -11,10 +11,14 @@ export const dataSource = new DataSource({
   entities: [__dirname + '/src/**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/dist/database/migrations/*{.ts,.js}'],
   synchronize: true,
+  synchronize: true,
   logging: true,
   options: {
     encrypt: true, // Use this to enable SSL
     trustServerCertificate: true, // Use this to allow self-signed certificates
   },
+  // ssl: {
+  //   rejectUnauthorized: false,
+  // },
   migrationsRun: true,
 });

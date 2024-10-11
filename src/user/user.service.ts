@@ -4,6 +4,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { v4 as uuidv4, validate as uuidValidate } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
@@ -70,3 +71,4 @@ export class UserService {
     throw new UnauthorizedException('login failed');
   }
 }
+
