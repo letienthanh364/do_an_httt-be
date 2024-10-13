@@ -1,5 +1,9 @@
 import { BaseEntity, Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
 import { ProductInventory } from "./productInventory.entity";
+import { ProductCostHistory } from "./productCostHistory.entity";
+import { ProductListPriceHistory } from "./productListPriceHistory.entity";
+import { PurchaseOrderDetail } from "./purchaseOrderDetail.entity";
+import { WorkOrder } from "./workOrder.entity";
 
 @Entity('Product', { schema: 'Production' })
 export class Product {
@@ -78,7 +82,18 @@ export class Product {
     @Column()
     ModifiedDate: Date;
 
-    @JoinColumn({ name: 'ProductID', referencedColumnName: 'ProductID' })
-    @OneToMany((type) => ProductInventory, (productInventory) => productInventory.product)
+    @OneToMany((type) => ProductInventory, (productInventory) => productInventory.ProductID)
     productInventory: ProductInventory[];
+
+    @OneToMany(() => ProductCostHistory, (productCostHistory) => productCostHistory.product)
+    costHistories: ProductCostHistory[];
+
+    @OneToMany(() => ProductListPriceHistory, (productListPriceHistory) => productListPriceHistory.product)
+    productListPriceHistory: ProductListPriceHistory[];
+
+    @OneToMany(() => WorkOrder, (workOrder) => workOrder.ProductID)
+    workOrders: WorkOrder[];
+
+    @OneToMany(() => PurchaseOrderDetail, (purchaseOrderDetail) => purchaseOrderDetail.ProductID)
+    purchaseOrderDetail: PurchaseOrderDetail[];
 }

@@ -3,8 +3,9 @@ import { Product } from './product.entity';
 
 @Entity('ProductInventory', { schema: 'Production' })
 export class ProductInventory {
-    @PrimaryColumn()
-    ProductID: number;
+    @JoinColumn({ name: 'ProductID' })
+    @ManyToOne((type) => Product, (product) => product.productInventory)
+    ProductID: Product;
 
     @PrimaryColumn()
     LocationID: number;
@@ -21,9 +22,6 @@ export class ProductInventory {
     @Column('uuid')
     rowguid: string;
 
-    @Column()
+    @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
     ModifiedDate: Date;
-
-    @ManyToOne((type) => Product, (product) => product.productInventory)
-    product: Product;
 }
