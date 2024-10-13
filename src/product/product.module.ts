@@ -5,10 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from 'src/common/auth/strategy';
+import { ProductInventory } from './entities/productInventory.entity';
+import { dataSource } from 'ormconfig';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Product], 'data'),
+    TypeOrmModule.forFeature([Product, ProductInventory], dataSource),
   ],
   controllers: [ProductController],
   providers: [
