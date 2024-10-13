@@ -13,10 +13,6 @@ export class ProductService {
     @InjectDataSource(dataSource) private dataSource: DataSource,
   ) {}
 
-  create(createProductDto: CreateProductDto) {
-    return 'This action adds a new product';
-  }
-
   async findAll(): Promise<Product[]> {
     return this.dataSource.manager.find(Product);
   }
@@ -25,11 +21,4 @@ export class ProductService {
     return this.dataSource.manager.findOneBy(Product, {ProductID});
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} product`;
-  }
 }
