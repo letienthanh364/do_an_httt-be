@@ -2,6 +2,7 @@ import { DataSource } from 'typeorm';
 import 'dotenv/config';
 import { User } from 'src/user/user.entity';
 import { Product } from 'src/product/entities/product.entity';
+import { ProductInventory } from 'src/product/entities/productInventory.entity';
 
 export const systemDataSource = new DataSource({
   type: 'mssql',
@@ -33,8 +34,8 @@ export const dataSource = new DataSource({
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  // entities: [__dirname + '/src/data/**/*.entity{.ts,.js}'],
-  entities: [Product],
+  entities: [__dirname + '/src/product/entities/*.entity{.ts,.js}'],
+  
   logging: true,
   options: {
     encrypt: true, // Use this to enable SSL

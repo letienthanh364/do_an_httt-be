@@ -1,4 +1,5 @@
-import { BaseEntity, Column, Entity, PrimaryColumn } from "typeorm";
+import { BaseEntity, Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
+import { ProductInventory } from "./productInventory.entity";
 
 @Entity('Product', { schema: 'Production' })
 export class Product {
@@ -76,4 +77,8 @@ export class Product {
 
     @Column()
     ModifiedDate: Date;
+
+    @JoinColumn({ name: 'ProductID', referencedColumnName: 'ProductID' })
+    @OneToMany((type) => ProductInventory, (productInventory) => productInventory.product)
+    productInventory: ProductInventory[];
 }
