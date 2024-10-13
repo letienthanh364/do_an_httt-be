@@ -67,19 +67,19 @@ export class Product {
     @Column()
     ProductModelID: number;
 
-    @Column()
+    @Column({type: 'datetime'})
     SellStartDate: Date;
 
-    @Column()
+    @Column({type: 'datetime'})
     SellEndDate: Date;
 
-    @Column()
+    @Column({type: 'datetime'})
     DiscontinuedDate: Date;
 
     @Column('uuid')
     rowguid: string;
 
-    @Column()
+    @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
     ModifiedDate: Date;
 
     @OneToMany((type) => ProductInventory, (productInventory) => productInventory.ProductID)
