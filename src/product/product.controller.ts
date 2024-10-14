@@ -61,4 +61,9 @@ export class ProductController {
   async getProductStats(@Param('id') productId: number) {
     return await this.productService.getProductStats(productId);
   }
+
+  @Get(':id/purchase-stats')
+  async getProductPurchaseStats(@Param('id') productId: number) {
+    return await this.productService.getProductPurchaseStats(productId);
+  }
 }

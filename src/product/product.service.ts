@@ -116,4 +116,24 @@ export class ProductService {
       scrappedQuantitySum: productStats.scrappedQuantitySum || 0,
     };
   }
+
+  async getProductPurchaseStats(productId: number) {
+    const purchaseOrderDetailRepo =
+      this.dataSource.getRepository(PurchaseOrderDetail);
+
+    // Sum of OrderQuantity and StockedQuantity from PurchaseOrderDetail
+    const purchaseDetailStats = await purchaseOrderDetailRepo
+      .createQueryBuilder('purchaseOrderDetail')
+      .select('SUM(purchaseOrderDetail.ReceivedQty)', 'receivedQuantitySum')
+      .addSelect('SUM(purchaseOrderDetail.RejectedQty)', 'rejectedQuantitySum')
+      .addSelect('SUM(purchaseOrderDetail.StockedQty)', 'stockedQuantitySum')
+      .where('purchaseOrderDetail.ProductID = :productId', { productId })
+      .getRawOne();
+
+    return {
+      receivedQuantitySum: purchaseDetailStats.receivedQuantitySum || 0,
+      rejectedQuantitySum: purchaseDetailStats.rejectedQuantitySum || 0,
+      stockedQuantitySum: purchaseDetailStats.stockedQuantitySum || 0,
+    };
+  }
 }
