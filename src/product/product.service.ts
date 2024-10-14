@@ -24,8 +24,8 @@ import { ProductListPriceHistory } from './entities/productListPriceHistory.enti
 export class ProductService {
   constructor(@InjectDataSource(dataSource) private dataSource: DataSource) {}
 
-  //Sort by QUANTITY DESC
-  async findSortedByQuantity() {
+  async findAll() {
+    //Default sort by QUANTITY DESC
     return await this.dataSource.manager
       .createQueryBuilder(Product, 'product')
       .leftJoin(
@@ -64,9 +64,7 @@ export class ProductService {
     });
   }
 
-
-  //DEFAULT SORT BY MODIFIED DATE DESC
-  async findAll(){ 
+  async findByNewestDate() {
     return await this.dataSource.manager.getRepository(Product).find({
       order: { ModifiedDate: 'DESC' },
     });
