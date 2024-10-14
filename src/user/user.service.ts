@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { v4 as uuidv4, validate as uuidValidate } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
 import { UserLoginDto } from './dtos/user.login.dto';
@@ -14,6 +14,7 @@ import * as bcrypt from 'bcryptjs';
 import { JwtPayload } from 'src/common/jwt/payload';
 import { UserCreateDto } from './dtos/user.create.dto';
 import 'dotenv/config';
+import { dataSource } from 'ormconfig';
 
 @Injectable()
 export class UserService {
