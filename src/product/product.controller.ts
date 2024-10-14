@@ -4,11 +4,20 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { get } from 'http';
 import { json } from 'stream/consumers';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ProductCostHistory } from './entities/productCostHistory.entity';
+import { Product } from './entities/product.entity';
 
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
+  @ApiOperation({ summary: 'Get products by filters (ProductSubCategoryID, ProductModelID, active status), or sorted (total quantity, modified date DESC)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return an array of products filtered/sorted by the given parameters',
+    type: [Product],
+  })
   @Get()
   async findProducts(@Query('by') by: string, @Query('id') id?: number) {
     switch (by) {
@@ -24,10 +33,4 @@ export class ProductController {
         return this.productService.findAll();
     }
   }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productService.findOne(+id);
-  }
-
 }
