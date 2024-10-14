@@ -9,6 +9,7 @@ import {
   ApiBody,
   ApiOperation,
   ApiProperty,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -28,6 +29,17 @@ export class ProductController {
     status: 200,
     description: 'Return an array of products filtered/sorted by the given parameters',
     type: [Product],
+  })
+  @ApiQuery({
+    name: 'by',
+    description: 'Filter/sort products by',
+    enum: ['subcat', 'model', 'active', 'quantity'],
+    required: false
+  })
+  @ApiQuery({
+    name: 'id',
+    description: 'ID of subcategory or model',
+    required: false
   })
   @Get()
   async findProducts(@Query('by') by: string, @Query('id') id?: number) {
