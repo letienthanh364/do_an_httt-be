@@ -18,6 +18,7 @@ import { dataSource } from 'ormconfig';
 import { ProductCostHistory } from './entities/productCostHistory.entity';
 import { PurchaseOrderDetail } from './entities/purchaseOrderDetail.entity';
 import { WorkOrder } from './entities/workOrder.entity';
+import { ProductListPriceHistory } from './entities/productListPriceHistory.entity';
 
 @Injectable()
 export class ProductService {
@@ -75,9 +76,18 @@ export class ProductService {
   }
 
   async listCostHistoryOfProduct(productId: number) {
-    const productCostHistoryRepository =
+    const productCostHistoryRepo =
       this.dataSource.getRepository(ProductCostHistory);
-    return await productCostHistoryRepository.find({
+    return await productCostHistoryRepo.find({
+      where: { product: { ProductID: productId } },
+    });
+  }
+
+  async listPriceHistoryOfProduct(productId: number) {
+    const productPriceHistoryRepo = this.dataSource.getRepository(
+      ProductListPriceHistory,
+    );
+    return await productPriceHistoryRepo.find({
       where: { product: { ProductID: productId } },
     });
   }

@@ -48,8 +48,13 @@ export class ProductController {
   }
 
   @Get(':id/cost-history')
-  async listCostHistory(@Param('id') productId: number) {
+  async listCostHistoryOfProduct(@Param('id') productId: number) {
     return await this.productService.listCostHistoryOfProduct(productId);
+  }
+
+  @Get(':id/price-history')
+  async listPriceHistoryOfProduct(@Param('id') productId: number) {
+    return await this.productService.listPriceHistoryOfProduct(productId);
   }
 
   @Get(':id/inventory')
