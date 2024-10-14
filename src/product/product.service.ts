@@ -16,6 +16,8 @@ import { Product } from './entities/product.entity';
 import { ProductInventory } from './entities/productInventory.entity';
 import { dataSource } from 'ormconfig';
 import { ProductCostHistory } from './entities/productCostHistory.entity';
+import { PurchaseOrderDetail } from './entities/purchaseOrderDetail.entity';
+import { WorkOrder } from './entities/workOrder.entity';
 
 @Injectable()
 export class ProductService {
@@ -94,5 +96,24 @@ export class ProductService {
       location: inventory.location,
       quantity: inventory.Quantity,
     }));
+  }
+
+  async getProductStats(productId: number) {
+    const workOrderRepo = this.dataSource.getRepository(WorkOrder);
+
+    // Sum of OrderQuantity and StockedQuantity from PurchaseOrderDetail
+    const productStats = await workOrderRepo
+      .createQueryBuilder('workOrder')
+      .select('SUM(workOrder.OrderQty)', 'orderQuantitySum')
+      .addSelect('SUM(workOrder.StockedQty)', 'stockedQuantitySum')
+      .addSelect('SUM(workOrder.ScrappedQty)', 'scrappedQuantitySum')
+      .where('workOrder.ProductID = :productId', { productId })
+      .getRawOne();
+
+    return {
+      orderQuantitySum: productStats.orderQuantitySum || 0,
+      stockedQuantitySum: productStats.stockedQuantitySum || 0,
+      scrappedQuantitySum: productStats.scrappedQuantitySum || 0,
+    };
   }
 }
