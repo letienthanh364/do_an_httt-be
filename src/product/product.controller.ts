@@ -4,10 +4,23 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { get } from 'http';
 import { json } from 'stream/consumers';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+
 import { ProductCostHistory } from './entities/productCostHistory.entity';
 import { Product } from './entities/product.entity';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiProperty,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { ProductCostHistory } from './entities/productCostHistory.entity';
+import { ProductListPriceHistory } from './entities/productListPriceHistory.entity';
+import { ProductInventory } from './entities/productInventory.entity';
+import { Location } from './entities/location.entity';
 
+@ApiTags('product')
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
@@ -32,5 +45,82 @@ export class ProductController {
       default:
         return this.productService.findAll();
     }
+  }
+
+  @ApiOperation({ summary: 'Get cost history of product' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return an array of cost history',
+    type: [ProductCostHistory],
+  })
+  @Get(':id/cost-history')
+  async listCostHistoryOfProduct(@Param('id') productId: number) {
+    return await this.productService.listCostHistoryOfProduct(productId);
+  }
+
+  @ApiOperation({ summary: 'Get price history of product' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return an array of price history',
+    type: [ProductListPriceHistory],
+  })
+  @Get(':id/price-history')
+  async listPriceHistoryOfProduct(@Param('id') productId: number) {
+    return await this.productService.listPriceHistoryOfProduct(productId);
+  }
+
+  @ApiOperation({ summary: 'Get the list of inventories of product' })
+  @ApiResponse({
+    status: 200,
+    description:
+      "Return an array of inventory objects including 'location' and 'quantity'",
+    example: [
+      {
+        location: {
+          Name: 'Frame Forming',
+          CostRate: 22.5,
+          Availability: 96,
+          ModifiedDate: new Date(),
+        } as Location,
+        quantity: 2000,
+      },
+    ],
+  })
+  @Get(':id/inventory')
+  async listProductInventories(@Param('id') productId: number) {
+    return await this.productService.listInventoriesByProductId(productId);
+  }
+
+  @ApiOperation({ summary: 'Get stats of product' })
+  @ApiResponse({
+    status: 200,
+    description:
+      "Return the sums of 'order quantity', 'stocked quantity', 'scrapped quantity'",
+
+    example: {
+      orderQuantitySum: 1000,
+      stockedQuantitySum: 2000,
+      scrappedQuantitySum: 100,
+    },
+  })
+  @Get(':id/stats')
+  async getProductStats(@Param('id') productId: number) {
+    return await this.productService.getProductStats(productId);
+  }
+
+  @ApiOperation({ summary: 'Get purchase stats of product' })
+  @ApiResponse({
+    status: 200,
+    description:
+      "Return the sums of 'received quantity', 'rejected quantity', 'stocked quantity' of purchases got from product",
+    example: {
+      receivedQuantitySum: 1000,
+      rejectedQuantitySum: 2000,
+      stockedQuantitySum: 100,
+    },
+  })
+  @Get(':id/purchase-stats')
+  async getProductPurchaseStats(@Param('id') productId: number) {
+    return await this.productService.getProductPurchaseStats(productId);
   }
 }
