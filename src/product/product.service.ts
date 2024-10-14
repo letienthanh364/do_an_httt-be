@@ -15,6 +15,7 @@ import {
 import { Product } from './entities/product.entity';
 import { ProductInventory } from './entities/productInventory.entity';
 import { dataSource } from 'ormconfig';
+import { ProductCostHistory } from './entities/productCostHistory.entity';
 
 @Injectable()
 export class ProductService {
@@ -60,10 +61,10 @@ export class ProductService {
     });
   }
 
-  async findByNewestDate(){
+  async findByNewestDate() {
     return await this.dataSource.manager.getRepository(Product).find({
       order: { ModifiedDate: 'DESC' },
-    })
+    });
   }
 
   async findOne(ProductID: number): Promise<Product> {
@@ -71,4 +72,11 @@ export class ProductService {
     return this.dataSource.manager.findOneBy(Product, { ProductID });
   }
 
+  async listCostHistoryOfProduct(productId: number) {
+    const productCostHistoryRepository =
+      this.dataSource.getRepository(ProductCostHistory);
+    return await productCostHistoryRepository.find({
+      where: { product: { ProductID: productId } },
+    });
+  }
 }

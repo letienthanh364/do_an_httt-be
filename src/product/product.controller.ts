@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -37,5 +45,10 @@ export class ProductController {
   @Get('newest')
   findNewestProducts() {
     return this.productService.findByNewestDate();
+  }
+
+  @Get(':id/cost-history')
+  async listCostHistory(@Param('id') productId: number) {
+    return await this.productService.listCostHistoryOfProduct(productId);
   }
 }
