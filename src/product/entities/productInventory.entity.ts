@@ -1,27 +1,30 @@
-import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn, ManyToOne, JoinTable, JoinColumn } from 'typeorm';
-import { Product } from './product.entity';
+import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Location } from './location.entity';
 
 @Entity('ProductInventory', { schema: 'Production' })
 export class ProductInventory {
-    @JoinColumn({ name: 'ProductID' })
-    @ManyToOne((type) => Product, (product) => product.productInventory)
-    ProductID: Product;
+  @PrimaryColumn()
+  ProductID: number;
 
-    @PrimaryColumn()
-    LocationID: number;
+  @PrimaryColumn()
+  LocationID: number;
 
-    @Column()
-    Shelf: string;
+  @ManyToOne(() => Location)
+  @JoinColumn({ name: 'LocationID' })
+  location: Location; // Relationship with Location entity
 
-    @Column()
-    Bin: number;
+  @Column()
+  Shelf: string;
 
-    @Column()
-    Quantity: number;
+  @Column()
+  Bin: number;
 
-    @Column('uuid')
-    rowguid: string;
+  @Column()
+  Quantity: number;
 
-    @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-    ModifiedDate: Date;
+  @Column('uuid')
+  rowguid: string;
+
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  ModifiedDate: Date;
 }

@@ -79,4 +79,20 @@ export class ProductService {
       where: { product: { ProductID: productId } },
     });
   }
+
+  async listInventoriesByProductId(productId: number) {
+    const productInventoryRepository =
+      this.dataSource.getRepository(ProductInventory);
+
+    const result = await productInventoryRepository.find({
+      where: { ProductID: productId },
+      relations: ['location'], // Join with the Location entity
+      select: ['LocationID', 'Quantity', 'location'], // Select LocationID, Quantity, and Location details
+    });
+
+    return result.map((inventory) => ({
+      location: inventory.location,
+      quantity: inventory.Quantity,
+    }));
+  }
 }
