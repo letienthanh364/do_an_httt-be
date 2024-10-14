@@ -4,9 +4,6 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { get } from 'http';
 import { json } from 'stream/consumers';
-
-import { ProductCostHistory } from './entities/productCostHistory.entity';
-import { Product } from './entities/product.entity';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -15,6 +12,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Product } from './entities/product.entity';
 import { ProductCostHistory } from './entities/productCostHistory.entity';
 import { ProductListPriceHistory } from './entities/productListPriceHistory.entity';
 import { ProductInventory } from './entities/productInventory.entity';
