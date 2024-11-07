@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -18,28 +27,36 @@ import { ProductCostHistory } from './entities/productCostHistory.entity';
 import { ProductListPriceHistory } from './entities/productListPriceHistory.entity';
 import { ProductInventory } from './entities/productInventory.entity';
 import { Location } from './entities/location.entity';
+import { ProductUtilsService } from './productUtils.service';
 
 @ApiTags('product')
 @Controller('product')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly productUtilsService: ProductUtilsService,
+  ) {}
 
-  @ApiOperation({ summary: 'Get products by filters (ProductSubCategoryID, ProductModelID, active status), or sorted (total quantity, modified date DESC)' })
+  @ApiOperation({
+    summary:
+      'Get products by filters (ProductSubCategoryID, ProductModelID, active status), or sorted (total quantity, modified date DESC)',
+  })
   @ApiResponse({
     status: 200,
-    description: 'Return an array of products filtered/sorted by the given parameters',
+    description:
+      'Return an array of products filtered/sorted by the given parameters',
     type: [Product],
   })
   @ApiQuery({
     name: 'by',
     description: 'Filter/sort products by',
     enum: ['subcat', 'model', 'active', 'quantity'],
-    required: false
+    required: false,
   })
   @ApiQuery({
     name: 'id',
     description: 'ID of subcategory or model',
-    required: false
+    required: false,
   })
   @Get()
   async findProducts(@Query('by') by: string, @Query('id') id?: number) {
@@ -132,5 +149,17 @@ export class ProductController {
   @Get(':id/purchase-stats')
   async getProductPurchaseStats(@Param('id') productId: number) {
     return await this.productService.getProductPurchaseStats(productId);
+  }
+
+  @ApiOperation({ summary: 'ETL a Product Search by id' })
+  @Post('etl-product-search/:id')
+  async etlSingleProductSearch(@Param('id') productId: number) {
+    return await this.productUtilsService.etlSingleProductSearch(productId);
+  }
+
+  @ApiOperation({ summary: 'ETL all Product Search from Product' })
+  @Post('etl-product-search')
+  async etlAllProductSearch() {
+    return await this.productUtilsService.etlAllProductSeach();
   }
 }
