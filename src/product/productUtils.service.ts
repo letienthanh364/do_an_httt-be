@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, ObjectId, Repository } from 'typeorm';
+import { DataSource, getMongoRepository, ObjectId, Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { ProductSearch } from './entities/searchEntities/productSearch.entity';
 import { v4 } from 'uuid';
@@ -35,6 +35,12 @@ export class ProductUtilsService {
       _id: v4(),
       ProductID: product.ProductID,
       ProductName: product.Name,
+      ProductNumber: product.ProductNumber,
+      Color: product.Color,
+      ProductLine: product.ProductLine,
+      Class: product.Class,
+      Style: product.Style,
+      StandardCost: product.StandardCost,
       SearchKeys: getSearchKeysFromProduct(product), // Extract and filter search keys
     };
   }
@@ -113,5 +119,16 @@ export class ProductUtilsService {
       this.transfromProductToProductSearch(product),
     );
     return this.saveProductSearchList(productSearchList);
+  }
+
+  async searchProducts(keyword: string): Promise<ProductSearch[]> {
+    const regex = new RegExp(keyword, 'i'); // Case-insensitive regex for MongoDB
+
+    // Directly use the native MongoDB query with the repository
+    return await this.productSearchRepository.find({
+      where: {
+        SearchKeys: { $regex: regex }, // Use MongoDB native $regex operator
+      } as any, // TypeScript workaround to bypass TypeORM's type restrictions
+    });
   }
 }

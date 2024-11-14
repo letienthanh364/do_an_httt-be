@@ -12,6 +12,24 @@ export class ProductSearch {
   @Column({ length: 50 })
   ProductName: string;
 
+  @Column()
+  ProductNumber: string;
+
+  @Column()
+  Color: string;
+
+  @Column()
+  ProductLine: string;
+
+  @Column()
+  Class: string;
+
+  @Column()
+  Style: string;
+
+  @Column()
+  StandardCost: number;
+
   @Column('array') // MongoDB-compatible array type
   SearchKeys: string[];
 }

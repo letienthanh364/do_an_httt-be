@@ -162,4 +162,10 @@ export class ProductController {
   async etlAllProductSearch() {
     return await this.productUtilsService.etlAllProductSeach();
   }
+
+  @ApiOperation({ summary: 'Search Products using Search Database' })
+  @Get('etl-product-search')
+  async searchProducts(@Query('keyword') keyword?: string) {
+    return this.productUtilsService.searchProducts(keyword);
+  }
 }
