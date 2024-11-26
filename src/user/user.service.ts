@@ -14,12 +14,11 @@ import * as bcrypt from 'bcryptjs';
 import { JwtPayload } from 'src/common/jwt/payload';
 import { UserCreateDto } from './dtos/user.create.dto';
 import 'dotenv/config';
-import { dataSource } from 'ormconfig';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User)
+    @InjectRepository(User, 'defaultConnection')
     private readonly userRepo: Repository<User>,
     private readonly jwtService: JwtService,
   ) {}
@@ -72,4 +71,3 @@ export class UserService {
     throw new UnauthorizedException('login failed');
   }
 }
-

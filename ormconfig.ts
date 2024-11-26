@@ -3,6 +3,7 @@ import 'dotenv/config';
 import { User } from 'src/user/user.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { ProductInventory } from 'src/product/entities/productInventory.entity';
+import { ProductSearch } from 'src/product/entities/searchEntities/productSearch.entity';
 
 export const systemDataSource = new DataSource({
   type: 'mssql',
@@ -35,10 +36,19 @@ export const dataSource = new DataSource({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   entities: [__dirname + '/src/product/entities/*.entity{.ts,.js}'],
-  
+
   logging: true,
   options: {
     encrypt: true, // Use this to enable SSL
     trustServerCertificate: true, // Use this to allow self-signed certificates
   },
-})
+});
+
+export const searchDB = new DataSource({
+  type: 'mongodb',
+  host: process.env.SEARCH_DB_HOST,
+  port: parseInt(process.env.SEARCH_DB_PORT, 10) ?? 3306,
+  database: process.env.SEARCH_DB_NAME,
+  entities: [ProductSearch],
+  useUnifiedTopology: true,
+});

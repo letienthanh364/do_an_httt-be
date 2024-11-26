@@ -12,7 +12,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {}
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(
-    @InjectRepository(User)
+    @InjectRepository(User, 'defaultConnection')
     private readonly usersRepository: Repository<User>,
   ) {
     super({
