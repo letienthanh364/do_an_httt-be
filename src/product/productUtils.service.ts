@@ -1,6 +1,12 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, getMongoRepository, ObjectId, Repository } from 'typeorm';
+import {
+  DataSource,
+  getMongoRepository,
+  In,
+  ObjectId,
+  Repository,
+} from 'typeorm';
 import { Product } from './entities/product.entity';
 import { ProductSearch } from './entities/searchEntities/productSearch.entity';
 import { v4 } from 'uuid';
@@ -141,7 +147,9 @@ export class ProductUtilsService implements OnApplicationBootstrap {
       return []; // Return empty array if no matching productSearch records
     }
 
-    // Fetch products from productRepository based on the ProductIDs
-    return await this.productRepository.findByIds(productIds);
+    // Fetch products from productRepository using the In operator
+    return await this.productRepository.findBy({
+      ProductID: In(productIds),
+    });
   }
 }
