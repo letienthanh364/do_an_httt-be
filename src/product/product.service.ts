@@ -1,17 +1,7 @@
-import { BadRequestException, ConflictException, Injectable, Param } from '@nestjs/common';
+import { BadRequestException, Injectable, Param } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import {
-  DataSource,
-  IsNull,
-  LessThan,
-  LessThanOrEqual,
-  MoreThan,
-  Or,
-  Raw,
-  Repository,
-} from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource, Raw } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { ProductInventory } from './entities/productInventory.entity';
 import { dataSource } from 'ormconfig';
@@ -68,9 +58,8 @@ export class ProductService {
     });
   }
 
-
   //DEFAULT SORT BY MODIFIED DATE DESC
-  async findAll(){ 
+  async findAll() {
     return await this.dataSource.manager.getRepository(Product).find({
       order: { ModifiedDate: 'DESC' },
     });
@@ -151,7 +140,7 @@ export class ProductService {
       rejectedQuantitySum: purchaseDetailStats.rejectedQuantitySum || 0,
       stockedQuantitySum: purchaseDetailStats.stockedQuantitySum || 0,
     };
-  } 
+  }
   async getProductWeightUnitMeasureCode(productId: number) {
     const purchaseOrderDetailRepo =
       this.dataSource.getRepository(PurchaseOrderDetail);
@@ -170,23 +159,24 @@ export class ProductService {
       rejectedQuantitySum: purchaseDetailStats.rejectedQuantitySum || 0,
       stockedQuantitySum: purchaseDetailStats.stockedQuantitySum || 0,
     };
-  } 
+  }
   private generateRandomString(length: number): string {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
     for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        result += characters[randomIndex];
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      result += characters[randomIndex];
     }
     return result;
   }
   async createProduct(createProductDto: CreateProductDto): Promise<any> {
     const productRepository = this.dataSource.getRepository(Product);
-      let generatedProductNumber = this.generateRandomString(20);
+    let generatedProductNumber = this.generateRandomString(20);
 
-      let existingProduct = await productRepository.findOne({
-        where: { ProductNumber: generatedProductNumber },
-      });
+    let existingProduct = await productRepository.findOne({
+      where: { ProductNumber: generatedProductNumber },
+    });
 
       let existingName = await productRepository.findOne({
         where: { Name: createProductDto.Name },
