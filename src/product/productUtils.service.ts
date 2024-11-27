@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, getMongoRepository, ObjectId, Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
@@ -6,7 +6,7 @@ import { ProductSearch } from './entities/searchEntities/productSearch.entity';
 import { v4 } from 'uuid';
 
 @Injectable()
-export class ProductUtilsService {
+export class ProductUtilsService implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(Product, 'defaultConnection') // Specify SQL Server connection for Product
     private readonly productRepository: Repository<Product>,
@@ -14,6 +14,10 @@ export class ProductUtilsService {
     @InjectRepository(ProductSearch, 'searchConnection') // MongoDB data source with specified connection name
     private readonly productSearchRepository: Repository<ProductSearch>,
   ) {}
+  async onApplicationBootstrap() {
+    await this.etlAllProductSeach();
+    console.log('The Product Search Database is initialized successfully.');
+  }
 
   transfromProductToProductSearch(product: Product): ProductSearch {
     // Helper function to safely extract search keys
