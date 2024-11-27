@@ -19,10 +19,14 @@ import { ProductCostHistory } from './entities/productCostHistory.entity';
 import { PurchaseOrderDetail } from './entities/purchaseOrderDetail.entity';
 import { WorkOrder } from './entities/workOrder.entity';
 import { ProductListPriceHistory } from './entities/productListPriceHistory.entity';
+import { ProductUtilsService } from './productUtils.service';
 
 @Injectable()
 export class ProductService {
-  constructor(@InjectDataSource(dataSource) private dataSource: DataSource) {}
+  constructor(@InjectDataSource(dataSource) 
+  private dataSource: DataSource,
+  private readonly productUtilsService: ProductUtilsService
+) {}
 
   //Sort by QUANTITY DESC
   async findSortedByQuantity() {
@@ -204,6 +208,8 @@ export class ProductService {
           ...createProductDto,
           ProductNumber: generatedProductNumber
         });
-      return await productRepository.save(newProduct);
+     const product = await productRepository.save(newProduct);
+      await this.productUtilsService.etlSingleProductSearch(product.ProductID);
+      return product;
   }
 }
