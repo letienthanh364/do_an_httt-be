@@ -190,8 +190,15 @@ export class ProductController {
   async createProduct(@Body() createProductDto: CreateProductDto): Promise<{ message: string; product: Product }> {
       console.log(createProductDto)
       const newProduct = await this.productService.createProduct(createProductDto);
+
       return newProduct;
   }
+
+  @Delete('delete/:id')
+  async deleteProduct(@Param('id') id: number) {
+    await this.productService.deleteProduct(id);
+    return { message: 'Product deleted successfully'}
+  };
 
   @ApiOperation({ summary: 'ETL a Product Search by id' })
   @Post('etl-product-search/:id')
