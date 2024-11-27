@@ -39,12 +39,6 @@ export class ProductUtilsService implements OnApplicationBootstrap {
       _id: v4(),
       ProductID: product.ProductID,
       ProductName: product.Name,
-      ProductNumber: product.ProductNumber,
-      Color: product.Color,
-      ProductLine: product.ProductLine,
-      Class: product.Class,
-      Style: product.Style,
-      StandardCost: product.StandardCost,
       SearchKeys: getSearchKeysFromProduct(product), // Extract and filter search keys
     };
   }
@@ -125,14 +119,29 @@ export class ProductUtilsService implements OnApplicationBootstrap {
     return this.saveProductSearchList(productSearchList);
   }
 
-  async searchProducts(keyword: string): Promise<ProductSearch[]> {
+  async searchProducts(keyword?: string): Promise<Product[]> {
+    if (!keyword) {
+      // If keyword is undefined, fetch all products
+      return await this.productRepository.find();
+    }
+
     const regex = new RegExp(keyword, 'i'); // Case-insensitive regex for MongoDB
 
-    // Directly use the native MongoDB query with the repository
-    return await this.productSearchRepository.find({
+    // Fetch productSearch records matching the keyword
+    const productSearchList = await this.productSearchRepository.find({
       where: {
-        SearchKeys: { $regex: regex }, // Use MongoDB native $regex operator
-      } as any, // TypeScript workaround to bypass TypeORM's type restrictions
+        SearchKeys: { $regex: regex }, // MongoDB $regex for searching
+      } as any, // TypeScript workaround for TypeORM's limitations
     });
+
+    // Extract ProductIDs from the productSearch records
+    const productIds = productSearchList.map((search) => search.ProductID);
+
+    if (productIds.length === 0) {
+      return []; // Return empty array if no matching productSearch records
+    }
+
+    // Fetch products from productRepository based on the ProductIDs
+    return await this.productRepository.findByIds(productIds);
   }
 }
