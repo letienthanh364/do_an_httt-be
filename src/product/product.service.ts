@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Param } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Param } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, Raw } from 'typeorm';
@@ -201,5 +201,19 @@ export class ProductService {
      const product = await productRepository.save(newProduct);
       await this.productUtilsService.etlSingleProductSearch(product.ProductID);
       return product;
+  }
+  async deleteProduct(productId: number): Promise<void> {
+    const productRepository = this.dataSource.getRepository(Product);
+  
+    // Find the product by ID
+    const productToDelete = await productRepository.findOneByOrFail({ ProductID: productId });
+  
+    // Check if the product exists before deletion
+    if (!productToDelete) {
+      throw new NotFoundException('Product not found');
+    }
+  
+    // Delete the product
+    await productRepository.remove(productToDelete);
   }
 }
