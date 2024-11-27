@@ -1,17 +1,7 @@
-import { Injectable, Param } from '@nestjs/common';
+import { BadRequestException, Injectable, Param } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import {
-  DataSource,
-  IsNull,
-  LessThan,
-  LessThanOrEqual,
-  MoreThan,
-  Or,
-  Raw,
-  Repository,
-} from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource, Raw } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { ProductInventory } from './entities/productInventory.entity';
 import { dataSource } from 'ormconfig';
@@ -64,9 +54,8 @@ export class ProductService {
     });
   }
 
-
   //DEFAULT SORT BY MODIFIED DATE DESC
-  async findAll(){ 
+  async findAll() {
     return await this.dataSource.manager.getRepository(Product).find({
       order: { ModifiedDate: 'DESC' },
     });
@@ -147,5 +136,62 @@ export class ProductService {
       rejectedQuantitySum: purchaseDetailStats.rejectedQuantitySum || 0,
       stockedQuantitySum: purchaseDetailStats.stockedQuantitySum || 0,
     };
+  }
+  async getProductWeightUnitMeasureCode(productId: number) {
+    const purchaseOrderDetailRepo =
+      this.dataSource.getRepository(PurchaseOrderDetail);
+
+    // Sum of OrderQuantity and StockedQuantity from PurchaseOrderDetail
+    const purchaseDetailStats = await purchaseOrderDetailRepo
+      .createQueryBuilder('purchaseOrderDetail')
+      .select('SUM(purchaseOrderDetail.ReceivedQty)', 'receivedQuantitySum')
+      .addSelect('SUM(purchaseOrderDetail.RejectedQty)', 'rejectedQuantitySum')
+      .addSelect('SUM(purchaseOrderDetail.StockedQty)', 'stockedQuantitySum')
+      .where('purchaseOrderDetail.ProductID = :productId', { productId })
+      .getRawOne();
+
+    return {
+      receivedQuantitySum: purchaseDetailStats.receivedQuantitySum || 0,
+      rejectedQuantitySum: purchaseDetailStats.rejectedQuantitySum || 0,
+      stockedQuantitySum: purchaseDetailStats.stockedQuantitySum || 0,
+    };
+  }
+  private generateRandomString(length: number): string {
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      result += characters[randomIndex];
+    }
+    return result;
+  }
+  async createProduct(createProductDto: CreateProductDto): Promise<any> {
+    const productRepository = this.dataSource.getRepository(Product);
+    let generatedProductNumber = this.generateRandomString(20);
+
+    let existingProduct = await productRepository.findOne({
+      where: { ProductNumber: generatedProductNumber },
+    });
+
+    let existingName = await productRepository.findOne({
+      where: { Name: createProductDto.Name },
+    });
+
+    while (existingProduct) {
+      generatedProductNumber = this.generateRandomString(20);
+      existingProduct = await productRepository.findOne({
+        where: { ProductNumber: generatedProductNumber },
+      });
+    }
+    if (existingName) {
+      throw new BadRequestException('The name of product already exists');
+    }
+
+    const newProduct = productRepository.create({
+      ...createProductDto,
+      ProductNumber: generatedProductNumber,
+    });
+    return await productRepository.save(newProduct);
   }
 }

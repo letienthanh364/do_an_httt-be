@@ -27,6 +27,7 @@ import { ProductCostHistory } from './entities/productCostHistory.entity';
 import { ProductListPriceHistory } from './entities/productListPriceHistory.entity';
 import { ProductInventory } from './entities/productInventory.entity';
 import { Location } from './entities/location.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductUtilsService } from './productUtils.service';
 
 @ApiTags('product')
@@ -149,6 +150,47 @@ export class ProductController {
   @Get(':id/purchase-stats')
   async getProductPurchaseStats(@Param('id') productId: number) {
     return await this.productService.getProductPurchaseStats(productId);
+  }
+
+  @ApiOperation({ summary: 'Create a new product' })
+  @ApiBody({
+    description: 'Data for creating a new product',
+    type: CreateProductDto,
+    examples: {
+      example1: {
+        summary: 'Typical Product Creation Request',
+        value: {
+          Name: "Sample Product",
+          MakeFlag: true,
+          FinishedGoodsFlag: true,
+          Color: "Red",
+          SafetyStockLevel: 100.00,  // > 0
+          ReorderPoint: 50.00,        // > 0
+          StandardCost: 20.00,        // >= 0
+          ListPrice: 40.00,           // >= 0
+          Size: "M",
+          SizeUnitMeasureCode: "CM",
+          WeightUnitMeasureCode: "KG",
+          Weight: 1.5,                 // > 0
+          DaysToManufacture: 5,       // >= 0
+          ProductLine: "R",            // 'R', 'M', 'T', 'S' hoặc NULL
+          Class: "H",                  // 'H', 'M', 'L' hoặc NULL
+          Style: "U",                  // 'U', 'M', 'W' hoặc NULL
+          ProductSubcategoryID: 1,
+          ProductModelID: 2,
+          SellStartDate: "2024-01-01T00:00:00.000Z",
+          SellEndDate: "2024-12-31T23:59:59.000Z", // >= SellStartDate hoặc NULL
+          DiscontinuedDate: null,      // có thể là NULL
+          ModifiedDate: "2024-01-01T00:00:00.000Z"
+        },
+      },
+    },
+  })
+  @Post('create')
+  async createProduct(@Body() createProductDto: CreateProductDto): Promise<{ message: string; product: Product }> {
+      console.log(createProductDto)
+      const newProduct = await this.productService.createProduct(createProductDto);
+      return newProduct;
   }
 
   @ApiOperation({ summary: 'ETL a Product Search by id' })

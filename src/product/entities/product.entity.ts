@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
+import { BaseEntity, Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import { ProductInventory } from "./productInventory.entity";
 import { ProductCostHistory } from "./productCostHistory.entity";
 import { ProductListPriceHistory } from "./productListPriceHistory.entity";
@@ -7,13 +7,13 @@ import { WorkOrder } from "./workOrder.entity";
 
 @Entity('Product', { schema: 'Production' })
 export class Product {
-    @PrimaryColumn()
+    @PrimaryGeneratedColumn()
     ProductID: number;
 
     @Column({length: 50})
     Name: string;
 
-    @Column({length: 55})
+    @Column({ length: 25, unique: true })
     ProductNumber: string;
 
     @Column()
@@ -76,7 +76,7 @@ export class Product {
     @Column({type: 'datetime'})
     DiscontinuedDate: Date;
 
-    @Column('uuid')
+    @Column({type: 'uuid', unique: true})
     rowguid: string;
 
     @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })

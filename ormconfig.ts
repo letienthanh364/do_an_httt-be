@@ -36,7 +36,6 @@ export const dataSource = new DataSource({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   entities: [__dirname + '/src/product/entities/*.entity{.ts,.js}'],
-
   logging: true,
   options: {
     encrypt: true, // Use this to enable SSL
