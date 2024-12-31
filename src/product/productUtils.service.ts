@@ -68,21 +68,25 @@ export class ProductUtilsService implements OnApplicationBootstrap {
       });
 
       if (existingProductSearch) {
-        // Check if there are any differences
+        // Only update non-id fields
         const isChanged =
-          existingProductSearch.ProductName != productSearch.ProductName ||
-          JSON.stringify(existingProductSearch.SearchKeys) !=
+          existingProductSearch.ProductName !== productSearch.ProductName ||
+          JSON.stringify(existingProductSearch.SearchKeys) !==
             JSON.stringify(productSearch.SearchKeys);
 
         if (isChanged) {
-          // Update the existing document if there's a change
+          // Update the document without modifying the _id
           await this.productSearchRepository.update(
             { ProductID: productSearch.ProductID },
-            productSearch,
+            {
+              ProductName: productSearch.ProductName,
+              SearchKeys: productSearch.SearchKeys,
+            },
           );
         }
         return { message: 'ProductSearch updated', productSearch };
       } else {
+        // Create a new entry if it does not exist
         const newProductSearch =
           await this.productSearchRepository.save(productSearch);
         return {
