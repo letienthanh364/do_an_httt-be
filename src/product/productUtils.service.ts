@@ -152,4 +152,25 @@ export class ProductUtilsService implements OnApplicationBootstrap {
       ProductID: In(productIds),
     });
   }
+
+  async removeProductSearch(productId: number) {
+    try {
+      // Find the ProductSearch entry by ProductID
+      const existingProductSearch = await this.productSearchRepository.findOne({
+        where: { ProductID: productId },
+      });
+
+      if (!existingProductSearch) {
+        throw new Error(`ProductSearch with ProductID ${productId} not found.`);
+      }
+
+      // Remove the entry from the database
+      await this.productSearchRepository.delete({ ProductID: productId });
+
+      return { message: 'ProductSearch deleted successfully', productId };
+    } catch (error) {
+      console.error('Error deleting productSearch:', error);
+      throw new Error('Failed to delete product search');
+    }
+  }
 }

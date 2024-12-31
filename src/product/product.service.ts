@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException, Param } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  Param,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, Raw } from 'typeorm';
@@ -13,10 +18,11 @@ import { ProductUtilsService } from './productUtils.service';
 
 @Injectable()
 export class ProductService {
-  constructor(@InjectDataSource(dataSource) 
-  private dataSource: DataSource,
-  private readonly productUtilsService: ProductUtilsService
-) {}
+  constructor(
+    @InjectDataSource(dataSource)
+    private dataSource: DataSource,
+    private readonly productUtilsService: ProductUtilsService,
+  ) {}
 
   //Sort by QUANTITY DESC
   async findSortedByQuantity() {
@@ -170,6 +176,7 @@ export class ProductService {
     }
     return result;
   }
+
   async createProduct(createProductDto: CreateProductDto): Promise<any> {
     const productRepository = this.dataSource.getRepository(Product);
     let generatedProductNumber = this.generateRandomString(20);
@@ -178,42 +185,43 @@ export class ProductService {
       where: { ProductNumber: generatedProductNumber },
     });
 
-      let existingName = await productRepository.findOne({
-        where: { Name: createProductDto.Name },
+    let existingName = await productRepository.findOne({
+      where: { Name: createProductDto.Name },
+    });
+
+    while (existingProduct) {
+      generatedProductNumber = this.generateRandomString(20);
+      existingProduct = await productRepository.findOne({
+        where: { ProductNumber: generatedProductNumber },
       });
-  
-      while (existingProduct) {
-        generatedProductNumber = this.generateRandomString(20);
-        existingProduct = await productRepository.findOne({
-          where: { ProductNumber: generatedProductNumber },
-        });
-      } 
-      if (existingName)
-      {
-        throw new BadRequestException('The name of product already exists');
-      }
-  
-      const newProduct = productRepository.create(
-        {
-          ...createProductDto,
-          ProductNumber: generatedProductNumber
-        });
-     const product = await productRepository.save(newProduct);
-      await this.productUtilsService.etlSingleProductSearch(product.ProductID);
-      return product;
+    }
+    if (existingName) {
+      throw new BadRequestException('The name of product already exists');
+    }
+
+    const newProduct = productRepository.create({
+      ...createProductDto,
+      ProductNumber: generatedProductNumber,
+    });
+    const product = await productRepository.save(newProduct);
+    await this.productUtilsService.etlSingleProductSearch(product.ProductID);
+    return product;
   }
+
   async deleteProduct(productId: number): Promise<void> {
     const productRepository = this.dataSource.getRepository(Product);
-  
-    // Find the product by ID
-    const productToDelete = await productRepository.findOneByOrFail({ ProductID: productId });
-  
-    // Check if the product exists before deletion
+
+    const productToDelete = await productRepository.findOneByOrFail({
+      ProductID: productId,
+    });
+
     if (!productToDelete) {
       throw new NotFoundException('Product not found');
     }
-  
-    // Delete the product
+
+    // Delete ProductSearch entry
+    await this.productUtilsService.removeProductSearch(productId);
+
     await productRepository.remove(productToDelete);
   }
 }
