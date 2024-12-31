@@ -153,19 +153,46 @@ export class ProductUtilsService implements OnApplicationBootstrap {
     });
   }
 
-  async updateProductSearch(product: Product): Promise<void> {
+  async updateProductSearch(product: Product) {
     try {
-      // Transform product to ProductSearch format
+      // Check if a document with the same ProductID already exists
+      const existingProductSearch = await this.productSearchRepository.findOne({
+        where: { ProductID: product.ProductID },
+      });
+
+      // Transform Product to ProductSearch format
       const productSearch = this.transfromProductToProductSearch(product);
 
-      // Save or update the ProductSearch entry
-      await this.saveProductSearch(productSearch);
-      console.log(
-        `ProductSearch for ProductID ${product.ProductID} updated successfully.`,
-      );
+      if (existingProductSearch) {
+        // Only update fields other than _id
+        const isChanged =
+          existingProductSearch.ProductName !== productSearch.ProductName ||
+          JSON.stringify(existingProductSearch.SearchKeys) !==
+            JSON.stringify(productSearch.SearchKeys);
+
+        if (isChanged) {
+          // Update without modifying the _id
+          await this.productSearchRepository.update(
+            { ProductID: product.ProductID },
+            {
+              ProductName: productSearch.ProductName,
+              SearchKeys: productSearch.SearchKeys,
+            },
+          );
+        }
+        return { message: 'ProductSearch updated', product };
+      } else {
+        // Create a new entry if it does not exist
+        const newProductSearch =
+          await this.productSearchRepository.save(productSearch);
+        return {
+          message: 'ProductSearch created',
+          productSearch: newProductSearch,
+        };
+      }
     } catch (error) {
-      console.error('Error updating ProductSearch:', error);
-      throw new Error('Failed to update product search data.');
+      console.error('Error saving productSearch:', error);
+      throw new Error('Failed to save product search');
     }
   }
 
