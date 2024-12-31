@@ -153,6 +153,22 @@ export class ProductUtilsService implements OnApplicationBootstrap {
     });
   }
 
+  async updateProductSearch(product: Product): Promise<void> {
+    try {
+      // Transform product to ProductSearch format
+      const productSearch = this.transfromProductToProductSearch(product);
+
+      // Save or update the ProductSearch entry
+      await this.saveProductSearch(productSearch);
+      console.log(
+        `ProductSearch for ProductID ${product.ProductID} updated successfully.`,
+      );
+    } catch (error) {
+      console.error('Error updating ProductSearch:', error);
+      throw new Error('Failed to update product search data.');
+    }
+  }
+
   async removeProductSearch(productId: number) {
     try {
       // Find the ProductSearch entry by ProductID

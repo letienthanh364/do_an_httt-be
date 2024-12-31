@@ -208,6 +208,49 @@ export class ProductService {
     return product;
   }
 
+  async updateProduct(
+    productId: number,
+    updateProductDto: CreateProductDto,
+  ): Promise<Product> {
+    const productRepository = this.dataSource.getRepository(Product);
+
+    // Find the product by ID
+    const existingProduct = await productRepository.findOneBy({
+      ProductID: productId,
+    });
+
+    if (!existingProduct) {
+      throw new NotFoundException('Product not found');
+    }
+
+    // Check for duplicate product name (excluding the current product)
+    const duplicateProduct = await productRepository.findOne({
+      where: {
+        Name: updateProductDto.Name,
+        ProductID: Raw((alias) => `${alias} != :productId`, { productId }),
+      },
+    });
+
+    if (duplicateProduct) {
+      throw new BadRequestException('Product name already exists');
+    }
+
+    // Merge updated data
+    const updatedProduct = productRepository.merge(
+      existingProduct,
+      updateProductDto,
+    );
+    updatedProduct.ModifiedDate = new Date(); // Update modified date to current
+
+    // Save the updated product
+    const savedProduct = await productRepository.save(updatedProduct);
+
+    // Call to update ProductSearch in the secondary database
+    await this.productUtilsService.updateProductSearch(savedProduct);
+
+    return savedProduct;
+  }
+
   async deleteProduct(productId: number): Promise<void> {
     const productRepository = this.dataSource.getRepository(Product);
 

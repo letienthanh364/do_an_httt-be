@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   Query,
+  Put,
+  NotFoundException,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -160,45 +162,67 @@ export class ProductController {
       example1: {
         summary: 'Typical Product Creation Request',
         value: {
-          Name: "Sample Product",
+          Name: 'Sample Product',
           MakeFlag: true,
           FinishedGoodsFlag: true,
-          Color: "Red",
-          SafetyStockLevel: 100.00,  // > 0
-          ReorderPoint: 50.00,        // > 0
-          StandardCost: 20.00,        // >= 0
-          ListPrice: 40.00,           // >= 0
-          Size: "M",
-          SizeUnitMeasureCode: "CM",
-          WeightUnitMeasureCode: "KG",
-          Weight: 1.5,                 // > 0
-          DaysToManufacture: 5,       // >= 0
-          ProductLine: "R",            // 'R', 'M', 'T', 'S' hoặc NULL
-          Class: "H",                  // 'H', 'M', 'L' hoặc NULL
-          Style: "U",                  // 'U', 'M', 'W' hoặc NULL
+          Color: 'Red',
+          SafetyStockLevel: 100.0, // > 0
+          ReorderPoint: 50.0, // > 0
+          StandardCost: 20.0, // >= 0
+          ListPrice: 40.0, // >= 0
+          Size: 'M',
+          SizeUnitMeasureCode: 'CM',
+          WeightUnitMeasureCode: 'KG',
+          Weight: 1.5, // > 0
+          DaysToManufacture: 5, // >= 0
+          ProductLine: 'R', // 'R', 'M', 'T', 'S' hoặc NULL
+          Class: 'H', // 'H', 'M', 'L' hoặc NULL
+          Style: 'U', // 'U', 'M', 'W' hoặc NULL
           ProductSubcategoryID: 1,
           ProductModelID: 2,
-          SellStartDate: "2024-01-01T00:00:00.000Z",
-          SellEndDate: "2024-12-31T23:59:59.000Z", // >= SellStartDate hoặc NULL
-          DiscontinuedDate: null,      // có thể là NULL
-          ModifiedDate: "2024-01-01T00:00:00.000Z"
+          SellStartDate: '2024-01-01T00:00:00.000Z',
+          SellEndDate: '2024-12-31T23:59:59.000Z', // >= SellStartDate hoặc NULL
+          DiscontinuedDate: null, // có thể là NULL
+          ModifiedDate: '2024-01-01T00:00:00.000Z',
         },
       },
     },
   })
   @Post('create')
-  async createProduct(@Body() createProductDto: CreateProductDto): Promise<{ message: string; product: Product }> {
-      console.log(createProductDto)
-      const newProduct = await this.productService.createProduct(createProductDto);
+  async createProduct(
+    @Body() createProductDto: CreateProductDto,
+  ): Promise<{ message: string; product: Product }> {
+    console.log(createProductDto);
+    const newProduct =
+      await this.productService.createProduct(createProductDto);
 
-      return newProduct;
+    return newProduct;
+  }
+
+  @Put('update/:id')
+  async updateProduct(
+    @Param('id') productId: number,
+    @Body() updateProductDto: CreateProductDto,
+  ): Promise<{ message: string; product: Product }> {
+    try {
+      const updatedProduct = await this.productService.updateProduct(
+        productId,
+        updateProductDto,
+      );
+      return {
+        message: 'Product updated successfully',
+        product: updatedProduct,
+      };
+    } catch (error) {
+      throw new NotFoundException(error.message || 'Product update failed');
+    }
   }
 
   @Delete('delete/:id')
   async deleteProduct(@Param('id') id: number) {
     await this.productService.deleteProduct(id);
-    return { message: 'Product deleted successfully'}
-  };
+    return { message: 'Product deleted successfully' };
+  }
 
   @ApiOperation({ summary: 'ETL a Product Search by id' })
   @Post('etl-product-search/:id')
